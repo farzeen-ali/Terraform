@@ -9,3 +9,7 @@ variable "instance_type" {
 variable "instance_name" {
     default = "FarzeenTerraform"
 }
+
+variable "bucket_name" {
+    default = "my-bucket-terraform-96264825482"
+}
