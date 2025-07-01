@@ -147,25 +147,50 @@
 
 # Terraform Registry Modules
 
+# provider "aws" {
+#     region = var.aws_region
+# }
+
+# module "vpc" {
+#   source = "terraform-aws-modules/vpc/aws"
+
+#   name = "my-vpc"
+#   cidr = "10.0.0.0/16"
+
+#   azs             = ["eu-north-1a", "eu-north-1b", "eu-north-1c"]
+#   private_subnets = ["10.0.1.0/24", "10.0.2.0/24", "10.0.3.0/24"]
+#   public_subnets  = ["10.0.101.0/24", "10.0.102.0/24", "10.0.103.0/24"]
+
+#   enable_nat_gateway = true
+#   enable_vpn_gateway = true
+
+#   tags = {
+#     Terraform = "true"
+#     Environment = "dev"
+#   }
+# }
+
+# Remote State with S3 + Locking with DynamoDB
+
 provider "aws" {
     region = var.aws_region
 }
 
-module "vpc" {
-  source = "terraform-aws-modules/vpc/aws"
+data "aws_ami" "amazon_linux" {
+    most_recent = true
+    owners = ["amazon"]
 
-  name = "my-vpc"
-  cidr = "10.0.0.0/16"
+    filter {
+        name = "name"
+        values = ["amzn2-ami-hvm-*-x86_64-gp2"]
+    }
+}
 
-  azs             = ["eu-north-1a", "eu-north-1b", "eu-north-1c"]
-  private_subnets = ["10.0.1.0/24", "10.0.2.0/24", "10.0.3.0/24"]
-  public_subnets  = ["10.0.101.0/24", "10.0.102.0/24", "10.0.103.0/24"]
+resource "aws_instance" "my_ec2" {
+    ami = data.aws_ami.amazon_linux.id
+    instance_type = var.instance_type
 
-  enable_nat_gateway = true
-  enable_vpn_gateway = true
-
-  tags = {
-    Terraform = "true"
-    Environment = "dev"
-  }
+    tags = {
+        Name = "FarzeenRemoteStateEC2"
+    }
 }
